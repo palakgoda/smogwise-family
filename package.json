@@ -1,0 +1,47 @@
+{
+  "name": "smogwise-family",
+  "version": "1.0.0",
+  "description": "GenAI-powered urban air quality assistant helping families and communities navigate severe winter smog with tailored low-emission routines, indoor air hacks, and direct impact insights.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "urban-air-quality",
+    "winter-smog",
+    "gemini-ai",
+    "indoor-air-quality",
+    "sustainability",
+    "nextjs",
+    "typescript",
+    "wcag-accessibility"
+  ],
+  "dependencies": {
+    "@google/genai": "^3.6.1",
+    "lucide-react": "^0.475.0",
+    "next": "^15.1.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.1.7",
+    "jsdom": "^26.0.0",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
