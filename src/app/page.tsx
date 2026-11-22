@@ -7,6 +7,7 @@ import { CitySearch } from "@/components/CitySearch";
 import { SmogDashboard } from "@/components/SmogDashboard";
 import { LifestyleControls, LifestyleProfile } from "@/components/LifestyleControls";
 import { GuidanceView } from "@/components/GuidanceView";
+import { WorkflowStepper } from "@/components/WorkflowStepper";
 import { AssistantResponse } from "@/lib/ai/schema";
 import { buildFallbackGuidance } from "@/lib/ai/fallback";
 import { calculateWinterSwapImpact } from "@/lib/impact/calculator";
@@ -48,6 +49,7 @@ export default function Home() {
 
   const [isLoadingCity, setIsLoadingCity] = useState<boolean>(false);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState<boolean>(false);
+  const [hasCustomGeneratedPlan, setHasCustomGeneratedPlan] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Pre-load initial grounded plan
@@ -126,6 +128,7 @@ export default function Home() {
 
       const generated: AssistantResponse = await res.json();
       setPlan(generated);
+      setHasCustomGeneratedPlan(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error generating tailored plan";
       setErrorMessage(msg);
@@ -134,59 +137,81 @@ export default function Home() {
     }
   };
 
+  // Dynamic atmospheric haze backdrop based on city's air status
+  const getAtmosphericBackdropClass = (severity: string) => {
+    switch (severity) {
+      case "Hazardous":
+      case "Very Unhealthy":
+        return "bg-gradient-to-b from-rose-100/40 via-slate-50 to-white";
+      case "Unhealthy":
+      case "Unhealthy for Sensitive Groups":
+        return "bg-gradient-to-b from-amber-100/35 via-slate-50 to-white";
+      default:
+        return "bg-gradient-to-b from-emerald-100/30 via-slate-50 to-white";
+    }
+  };
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-7">
-      {/* Accessible error banner */}
-      {errorMessage && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="rounded-2xl border border-red-300 bg-red-50 p-4 text-red-900 shadow-sm flex items-start space-x-3"
-        >
-          <AlertCircle className="mt-0.5 h-5 w-5 text-red-600 flex-shrink-0" aria-hidden="true" />
-          <div className="text-xs sm:text-sm">
-            <strong className="font-semibold">Notice: </strong>
-            {errorMessage}
+    <div className={`min-h-screen transition-colors duration-700 ${getAtmosphericBackdropClass(aqiData.airQuality.severityLabel)}`}>
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-7">
+        {/* Accessible error banner */}
+        {errorMessage && (
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="rounded-2xl border border-red-300 bg-red-50 p-4 text-red-900 shadow-sm flex items-start space-x-3"
+          >
+            <AlertCircle className="mt-0.5 h-5 w-5 text-red-600 shrink-0" aria-hidden="true" />
+            <div className="text-xs sm:text-sm">
+              <strong className="font-semibold">Notice: </strong>
+              {errorMessage}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 1. Header & City Search with Quick Demo Scenarios */}
-      <CitySearch
-        currentCity={aqiData.location.city}
-        onSelectCity={handleSelectCity}
-        isLoading={isLoadingCity}
-      />
+        {/* 1. Workflow Progress Stepper (Eliminates first-time user confusion) */}
+        <WorkflowStepper
+          currentCity={aqiData.location.city}
+          hasGeneratedPlan={hasCustomGeneratedPlan}
+        />
 
-      {/* 2. Live Smog & Inversion Banner */}
-      <SmogDashboard data={aqiData} />
+        {/* 2. City Search with Indian Cities Autocomplete & Winter Hub Pills */}
+        <CitySearch
+          currentCity={aqiData.location.city}
+          onSelectCity={handleSelectCity}
+          isLoading={isLoadingCity}
+        />
 
-      {/* 3. Family Profile & Sustainable Swaps Impact Simulator */}
-      <LifestyleControls
-        profile={profile}
-        onProfileChange={setProfile}
-        selectedSwapIds={selectedSwapIds}
-        onSwapsChange={setSelectedSwapIds}
-        onGeneratePlan={handleGeneratePlan}
-        isGenerating={isGeneratingPlan}
-      />
+        {/* 3. Live Smog & Inversion Banner with Animated Gauge & Inversion Explainer */}
+        <SmogDashboard data={aqiData} />
 
-      {/* 4. AI Guidance Tabs */}
-      {plan && (
-        <div role="region" aria-live="polite">
-          <GuidanceView plan={plan} />
-        </div>
-      )}
+        {/* 4. Family Profile & Sustainable Swaps Impact Simulator with Animated Counters */}
+        <LifestyleControls
+          profile={profile}
+          onProfileChange={setProfile}
+          selectedSwapIds={selectedSwapIds}
+          onSwapsChange={setSelectedSwapIds}
+          onGeneratePlan={handleGeneratePlan}
+          isGenerating={isGeneratingPlan}
+        />
 
-      {/* 5. Attribution & Medical Disclaimer */}
-      <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-amber-950 text-xs leading-relaxed space-y-2">
-        <div>
-          <strong className="font-bold text-amber-900">Medical Notice: </strong>
-          SmogWise Family is a lifestyle and indoor air quality assistant based on environmental sensor readings. It does not provide medical diagnosis or replace personalized medical treatment. If anyone in your household experiences severe shortness of breath, continuous coughing, or chest distress, please seek immediate guidance from a licensed medical professional.
-        </div>
-        <div className="text-[11px] text-amber-800/90 border-t border-amber-200/60 pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-          <span>Environmental sensor and forecast metrics provided by <strong>Open-Meteo</strong> (CC BY 4.0).</span>
-          <span>Designed with WCAG 2.1 AA accessibility & non-color sensory cues.</span>
+        {/* 5. AI Guidance Tabs */}
+        {plan && (
+          <div role="region" aria-live="polite">
+            <GuidanceView plan={plan} />
+          </div>
+        )}
+
+        {/* 6. Attribution & Medical Disclaimer */}
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-amber-950 text-xs leading-relaxed space-y-2">
+          <div>
+            <strong className="font-bold text-amber-900">Medical Notice: </strong>
+            SmogWise Family is a lifestyle and indoor air quality assistant based on environmental sensor readings. It does not provide medical diagnosis or replace personalized medical treatment. If anyone in your household experiences severe shortness of breath, continuous coughing, or chest distress, please seek immediate guidance from a licensed medical professional.
+          </div>
+          <div className="text-[11px] text-amber-800/90 border-t border-amber-200/60 pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+            <span>Environmental sensor and forecast metrics provided by <strong>Open-Meteo</strong> (CC BY 4.0).</span>
+            <span>Tailored for Indian winter smog &bull; Designed with WCAG 2.1 AA accessibility.</span>
+          </div>
         </div>
       </div>
     </div>
