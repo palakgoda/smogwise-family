@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, Loader2, MapPin, Building2, ChevronRight } from "lucide-react";
+import { Search, Loader2, MapPin, Building2, ChevronRight, Compass } from "lucide-react";
 import { INDIAN_DEMO_HUBS, searchIndianCities, IndianCity } from "@/lib/aqi/indian-cities";
 
 interface CitySearchProps {
@@ -19,12 +19,12 @@ export const CitySearch: React.FC<CitySearchProps> = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Sync internal state when parent city changes
+  // Sync internal state when currentCity prop updates
   useEffect(() => {
     setSearchInput(currentCity);
   }, [currentCity]);
 
-  // Update suggestions dynamically as user types
+  // Update suggestions dynamically
   useEffect(() => {
     if (searchInput.trim().length >= 1) {
       const matches = searchIndianCities(searchInput, 5);
@@ -35,7 +35,7 @@ export const CitySearch: React.FC<CitySearchProps> = ({
     }
   }, [searchInput]);
 
-  // Handle outside clicks to close autocomplete
+  // Close on outside clicks
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -85,26 +85,33 @@ export const CitySearch: React.FC<CitySearchProps> = ({
 
   return (
     <section
-      aria-label="Search and select Indian city for air quality readings"
-      className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 transition-all hover:shadow-md"
+      aria-label="Search and select city"
+      className="relative rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm transition-all hover:shadow-md"
       ref={wrapperRef}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-          <MapPin className="h-4 w-4 text-blue-600" aria-hidden="true" />
-          Select Your Indian City or District
-        </h2>
-        <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 rounded-full px-2.5 py-0.5">
-          India Stations &bull; 100% Grounded
-        </span>
+      {/* Human Greeting Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <div>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+            <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+            Live Urban Smog Monitor
+          </span>
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5 tracking-tight">
+            Checking air quality for <span className="underline decoration-blue-500 decoration-2 underline-offset-4">{currentCity}</span>
+          </h2>
+        </div>
+        <p className="text-xs font-medium text-slate-500 max-w-xs sm:text-right">
+          Switch to any Indian city or district to tailor today&apos;s exposure plan.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="relative flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* Modern Search Bar with autocomplete */}
+      <form onSubmit={handleSubmit} className="relative flex flex-col sm:flex-row gap-2.5">
         <label htmlFor="city-search-input" className="sr-only">
-          Search any city in India
+          Search any city or district across India
         </label>
         <div className="relative flex-1">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
             <Search className="h-5 w-5" aria-hidden="true" />
           </div>
           <input
@@ -126,7 +133,7 @@ export const CitySearch: React.FC<CitySearchProps> = ({
             onKeyDown={handleKeyDown}
             placeholder="Type any Indian city or district (e.g. Patna, Lucknow, Mumbai, Noida, Jaipur)..."
             disabled={isLoading}
-            className="w-full rounded-xl border border-slate-300 bg-slate-50/70 py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs transition-all focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
           />
 
           {/* Autocomplete Dropdown */}
@@ -134,7 +141,7 @@ export const CitySearch: React.FC<CitySearchProps> = ({
             <ul
               id="city-suggestions-list"
               role="listbox"
-              className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg ring-1 ring-black/5"
+              className="absolute z-30 mt-1.5 max-h-64 w-full overflow-auto rounded-2xl border border-slate-200 bg-white py-1.5 shadow-xl ring-1 ring-black/5"
             >
               {suggestions.map((item, index) => {
                 const isSelected = index === highlightedIndex;
@@ -144,16 +151,20 @@ export const CitySearch: React.FC<CitySearchProps> = ({
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => handleSelectSuggestion(item)}
-                    className={`flex items-center justify-between px-3.5 py-2.5 text-sm cursor-pointer transition-colors ${
-                      isSelected ? "bg-blue-50 text-blue-900 font-semibold" : "text-slate-700 hover:bg-slate-50"
+                    className={`flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                      isSelected ? "bg-blue-50 text-blue-900 font-bold" : "text-slate-700 hover:bg-slate-50"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                      <span>{item.name}</span>
-                      <span className="text-xs text-slate-500 font-normal">({item.state})</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                        <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <span className="font-semibold text-slate-900">{item.name}</span>
+                        <span className="ml-1.5 text-xs text-slate-500 font-medium">{item.state}</span>
+                      </div>
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                    <ChevronRight className="h-4 w-4 text-slate-400" aria-hidden="true" />
                   </li>
                 );
               })}
@@ -164,7 +175,7 @@ export const CitySearch: React.FC<CitySearchProps> = ({
         <button
           type="submit"
           disabled={isLoading || !searchInput.trim()}
-          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-600 active:scale-95 disabled:opacity-50 shrink-0"
         >
           {isLoading ? (
             <>
@@ -177,37 +188,35 @@ export const CitySearch: React.FC<CitySearchProps> = ({
         </button>
       </form>
 
-      {/* Quick-Pick Indian Demo Cities */}
-      <div className="mt-4 pt-3.5 border-t border-slate-100">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 flex items-center mr-1">
-            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mr-1.5 animate-pulse" />
-            Winter Smog Hubs:
-          </span>
-          {INDIAN_DEMO_HUBS.map((c) => {
-            const isActive =
-              currentCity.toLowerCase() === c.name.toLowerCase() ||
-              currentCity.toLowerCase().includes(c.name.toLowerCase());
-            return (
-              <button
-                key={c.name}
-                type="button"
-                onClick={() => handleDemoClick(c.name)}
-                disabled={isLoading}
-                title={`${c.name}: ${c.badge}`}
-                aria-pressed={isActive}
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold transition-all ${
-                  isActive
-                    ? "bg-blue-600 text-white shadow-xs scale-105"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 hover:scale-102"
-                }`}
-              >
-                <span>{c.label}</span>
-                <span className="ml-1 text-[10px] opacity-75 hidden md:inline">({c.badge})</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Quick-Pick Indian Winter Smog Hubs */}
+      <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold text-slate-600 flex items-center mr-1">
+          <MapPin className="h-3.5 w-3.5 mr-1 text-slate-400" aria-hidden="true" />
+          Winter Smog Hubs:
+        </span>
+        {INDIAN_DEMO_HUBS.map((c) => {
+          const isActive =
+            currentCity.toLowerCase() === c.name.toLowerCase() ||
+            currentCity.toLowerCase().includes(c.name.toLowerCase());
+          return (
+            <button
+              key={c.name}
+              type="button"
+              onClick={() => handleDemoClick(c.name)}
+              disabled={isLoading}
+              title={`${c.name}: ${c.badge}`}
+              aria-pressed={isActive}
+              className={`inline-flex items-center rounded-full px-3.5 py-1 text-xs font-bold transition-all ${
+                isActive
+                  ? "bg-blue-600 text-white shadow-xs scale-105 ring-2 ring-blue-300"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 hover:scale-102"
+              }`}
+            >
+              <span>{c.label}</span>
+              <span className="ml-1 text-[10px] opacity-75 hidden md:inline">({c.badge})</span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );

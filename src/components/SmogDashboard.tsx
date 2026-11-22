@@ -8,8 +8,7 @@ import {
   Thermometer,
   CloudFog,
   Clock,
-  ShieldCheck,
-  Flame,
+  Sparkles,
   Info,
   ChevronDown,
   ChevronUp,
@@ -24,67 +23,67 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
   const { location, airQuality, weather } = data;
   const [showInversionExplainer, setShowInversionExplainer] = useState(false);
 
-  const getAqiBadgeDetails = (label: SeverityLabel, aqi: number) => {
+  const getAqiTheme = (label: SeverityLabel) => {
     switch (label) {
       case "Good":
         return {
           icon: <CheckCircle2 className="h-6 w-6 text-emerald-700" aria-hidden="true" />,
-          bgClass: "bg-emerald-50/90 border-emerald-300 text-emerald-950",
+          cardBg: "bg-gradient-to-br from-emerald-50 via-teal-50/50 to-white border-emerald-200",
           pillClass: "bg-emerald-700 text-white",
           accentColor: "#15803d",
-          tag: "Level 1: Good (0-50)",
-          summary: "Air quality is satisfactory with minimal health risk. Ideal for outdoor exercise and regular window ventilation.",
+          levelTitle: "Clean & Breathable",
+          advice: "Air is fresh and safe for all household activities. Great time to open windows and exercise outdoors.",
         };
       case "Moderate":
         return {
           icon: <AlertCircle className="h-6 w-6 text-amber-700" aria-hidden="true" />,
-          bgClass: "bg-amber-50/90 border-amber-300 text-amber-950",
+          cardBg: "bg-gradient-to-br from-amber-50 via-yellow-50/40 to-white border-amber-200",
           pillClass: "bg-amber-700 text-white",
           accentColor: "#a16207",
-          tag: "Level 2: Moderate (51-100)",
-          summary: "Acceptable quality; sensitive individuals should consider taking it easy during intense outdoor activity.",
+          levelTitle: "Moderate Air Quality",
+          advice: "Acceptable for most; unusually sensitive individuals should take it easy during intense outdoor activity.",
         };
       case "Unhealthy for Sensitive Groups":
         return {
           icon: <AlertTriangle className="h-6 w-6 text-orange-700" aria-hidden="true" />,
-          bgClass: "bg-orange-50/90 border-orange-300 text-orange-950",
+          cardBg: "bg-gradient-to-br from-orange-50 via-amber-50/40 to-white border-orange-200",
           pillClass: "bg-orange-700 text-white",
           accentColor: "#c2410c",
-          tag: "Level 3: Sensitive Groups (101-150)",
-          summary: "Children, seniors, and anyone with asthma should limit prolonged outdoor exertion.",
+          levelTitle: "Unhealthy for Sensitive Lungs",
+          advice: "Children, seniors, and anyone with asthma should keep outdoor playtime and morning runs light.",
         };
       case "Unhealthy":
         return {
-          icon: <AlertTriangle className="h-6 w-6 text-red-700" aria-hidden="true" />,
-          bgClass: "bg-red-50/90 border-red-300 text-red-950",
-          pillClass: "bg-red-700 text-white",
+          icon: <AlertTriangle className="h-6 w-6 text-rose-700" aria-hidden="true" />,
+          cardBg: "bg-gradient-to-br from-rose-50 via-red-50/40 to-white border-rose-200",
+          pillClass: "bg-rose-700 text-white",
           accentColor: "#b91c1c",
-          tag: "Level 4: Unhealthy (151-200)",
-          summary: "Everyone may begin to experience health effects; avoid outdoor workouts and keep residential windows shut.",
+          levelTitle: "Unhealthy Smog Levels",
+          advice: "Smog will cause coughing or throat irritation. Keep home windows latched shut and wear an N95 outdoors.",
         };
       case "Very Unhealthy":
         return {
           icon: <ShieldAlert className="h-6 w-6 text-purple-700" aria-hidden="true" />,
-          bgClass: "bg-purple-50/90 border-purple-300 text-purple-950",
+          cardBg: "bg-gradient-to-br from-purple-50 via-fuchsia-50/40 to-white border-purple-200",
           pillClass: "bg-purple-800 text-white",
           accentColor: "#7e22ce",
-          tag: "Level 5: Very Unhealthy (201-300)",
-          summary: "Health alert: serious risk for all household members. Seal exterior drafts and run indoor air purifiers or DIY box-fan filters.",
+          levelTitle: "Very Unhealthy Smoke Alert",
+          advice: "High pollution alert for the entire household. Avoid outdoor exertion and seal door drafts with rolled towels.",
         };
       case "Hazardous":
       default:
         return {
-          icon: <ShieldAlert className="h-6 w-6 text-pink-800" aria-hidden="true" />,
-          bgClass: "bg-pink-50/90 border-pink-300 text-pink-950",
+          icon: <ShieldAlert className="h-6 w-6 text-pink-900" aria-hidden="true" />,
+          cardBg: "bg-gradient-to-br from-pink-50 via-rose-50/40 to-white border-pink-200",
           pillClass: "bg-pink-900 text-white",
           accentColor: "#701a75",
-          tag: "Level 6: Hazardous (301+)",
-          summary: "Emergency conditions: extreme ground soot trapping. All household members should avoid outdoor exertion and seal doorway drafts.",
+          levelTitle: "Emergency Winter Smog Trap",
+          advice: "Severe surface soot trapped near ground level. Keep all family members indoors and run air filters continuously.",
         };
     }
   };
 
-  const badge = getAqiBadgeDetails(airQuality.severityLabel, airQuality.usAqi);
+  const theme = getAqiTheme(airQuality.severityLabel);
 
   const getInversionBadge = (risk: string) => {
     switch (risk) {
@@ -92,20 +91,20 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
       case "High":
         return {
           icon: <CloudFog className="h-4 w-4 text-rose-700 animate-pulse" aria-hidden="true" />,
-          label: `${risk} Inversion Risk`,
-          badgeClass: "bg-rose-100 text-rose-900 border-rose-300 shadow-xs",
+          label: `${risk} Thermal Inversion`,
+          badgeClass: "bg-rose-100 text-rose-900 border-rose-300 ring-2 ring-rose-200",
         };
       case "Moderate":
         return {
           icon: <CloudFog className="h-4 w-4 text-amber-700" aria-hidden="true" />,
-          label: "Moderate Inversion Risk",
+          label: "Moderate Thermal Inversion",
           badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
         };
       case "Low":
       default:
         return {
           icon: <Wind className="h-4 w-4 text-emerald-700" aria-hidden="true" />,
-          label: "Low Inversion Risk",
+          label: "Low Inversion (Active Breeze)",
           badgeClass: "bg-emerald-100 text-emerald-900 border-emerald-300",
         };
     }
@@ -113,35 +112,26 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
 
   const inversionBadge = getInversionBadge(airQuality.inversionRisk);
 
-  // SVG Gauge calculations (semi-circle arc)
+  // SVG Gauge calculations
   const aqiClamped = Math.min(500, Math.max(0, airQuality.usAqi));
   const gaugePercent = (aqiClamped / 500) * 100;
-  // Arc length = PI * R = 3.14159 * 42 ~= 132
   const arcTotal = 132;
   const strokeOffset = arcTotal - (arcTotal * (gaugePercent / 100));
 
   return (
     <section
-      aria-labelledby="live-smog-heading"
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 transition-all"
+      aria-labelledby="today-air-story"
+      className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm transition-all"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-3 gap-2">
-        <div>
-          <div className="flex items-center space-x-2">
-            <h2 id="live-smog-heading" className="text-base font-bold text-slate-900">
-              Live Air Quality & Inversion Banner
-            </h2>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-ping" />
-              {location.city}, {location.country}
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Verified local pollution readings &bull; Winter ground-level thermal conditions
-          </p>
+      {/* Header with City & Real-time Sensor sync */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 gap-2">
+        <div className="flex items-center space-x-2.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+          <h2 id="today-air-story" className="text-base font-extrabold text-slate-900">
+            Today&apos;s Air Condition &bull; {location.city}, {location.country}
+          </h2>
         </div>
 
-        {/* Thermal Inversion Badge (Never relying on color alone: Icon + Label + Contrast pill) */}
         <div
           className={`inline-flex items-center space-x-1.5 rounded-full border px-3 py-1 text-xs font-bold ${inversionBadge.badgeClass}`}
         >
@@ -150,19 +140,17 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Main Status Hero Card with Animated Gauge */}
+      {/* Hero Visual Card: Semi-circle Gauge + Big numbers + Actionable takeaway */}
       <div
         role="region"
         aria-live="polite"
-        className={`mt-4 rounded-2xl border p-5 sm:p-6 transition-all shadow-xs ${badge.bgClass}`}
+        className={`mt-5 rounded-2xl border p-6 transition-all shadow-xs ${theme.cardBg}`}
       >
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          {/* Left: Gauge + AQI Numbers */}
-          <div className="flex items-center gap-5">
-            {/* Visual Circular Gauge */}
+          {/* Left: Animated Speedometer Gauge & Status */}
+          <div className="flex items-center gap-6">
             <div className="relative flex flex-col items-center justify-center shrink-0 w-28 h-24">
               <svg className="w-28 h-20 overflow-visible" viewBox="0 0 100 60">
-                {/* Background track */}
                 <path
                   d="M 10 50 A 40 40 0 0 1 90 50"
                   fill="none"
@@ -170,11 +158,10 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
                   strokeWidth="8"
                   strokeLinecap="round"
                 />
-                {/* Animated colored progress arc */}
                 <path
                   d="M 10 50 A 40 40 0 0 1 90 50"
                   fill="none"
-                  stroke={badge.accentColor}
+                  stroke={theme.accentColor}
                   strokeWidth="8"
                   strokeLinecap="round"
                   strokeDasharray={arcTotal}
@@ -192,54 +179,53 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
               </div>
             </div>
 
-            {/* Severity Details */}
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-bold ${badge.pillClass}`}>
-                  {badge.tag}
+                <span className={`inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-extrabold ${theme.pillClass}`}>
+                  {theme.levelTitle}
                 </span>
-                <span className="text-xs text-slate-600 font-semibold hidden sm:inline">
+                <span className="text-xs font-semibold text-slate-500">
                   {airQuality.usAqi > 200 ? "Severe Health Alert" : "Live Monitored"}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm font-medium text-slate-800 max-w-xl">
-                {badge.summary}
+              <p className="text-xs sm:text-sm font-semibold text-slate-800 max-w-lg leading-relaxed">
+                {theme.advice}
               </p>
             </div>
           </div>
 
-          {/* Right: Key Sensor Metrics Grid */}
+          {/* Right: Key Sensor Metrics in clean white chips */}
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-center shrink-0">
-            <div className="rounded-xl border border-slate-200/90 bg-white/90 p-2.5 shadow-2xs">
-              <p className="text-[10px] font-bold text-slate-500 uppercase">PM2.5</p>
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-2.5 shadow-2xs">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PM2.5</p>
               <p className="text-sm sm:text-base font-extrabold text-slate-900">
                 {airQuality.pm25} <span className="text-[10px] font-normal text-slate-500">µg/m³</span>
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200/90 bg-white/90 p-2.5 shadow-2xs">
-              <p className="text-[10px] font-bold text-slate-500 uppercase">PM10</p>
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-2.5 shadow-2xs">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PM10</p>
               <p className="text-sm sm:text-base font-extrabold text-slate-900">
                 {airQuality.pm10} <span className="text-[10px] font-normal text-slate-500">µg/m³</span>
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200/90 bg-white/90 p-2.5 shadow-2xs">
-              <p className="text-[10px] font-bold text-slate-500 uppercase">NO₂</p>
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-2.5 shadow-2xs">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NO₂</p>
               <p className="text-sm sm:text-base font-extrabold text-slate-900">
                 {airQuality.no2} <span className="text-[10px] font-normal text-slate-500">ppb</span>
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200/90 bg-white/90 p-2.5 shadow-2xs">
-              <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center justify-center gap-0.5">
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-2.5 shadow-2xs">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-center gap-0.5">
                 <Thermometer className="h-3 w-3 text-sky-600" aria-hidden="true" /> Temp
               </p>
               <p className="text-sm sm:text-base font-extrabold text-slate-900">{weather.tempC}°C</p>
             </div>
 
-            <div className="rounded-xl border border-slate-200/90 bg-white/90 p-2.5 shadow-2xs col-span-2 sm:col-span-1">
-              <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center justify-center gap-0.5">
+            <div className="rounded-xl border border-slate-200 bg-white/95 p-2.5 shadow-2xs col-span-2 sm:col-span-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-center gap-0.5">
                 <Wind className="h-3 w-3 text-teal-600" aria-hidden="true" /> Wind
               </p>
               <p className="text-sm sm:text-base font-extrabold text-slate-900">{weather.windKmh} <span className="text-[10px] font-normal text-slate-500">km/h</span></p>
@@ -248,25 +234,25 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Atmospheric Inversion & Diurnal Windows Grid */}
+      {/* Atmospheric Science & Diurnal Windows Grid */}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Inversion Mechanism Card */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition-all">
+        {/* Conversational "Why is pollution trapped?" card */}
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition-all">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <CloudFog className="h-5 w-5 text-indigo-600" aria-hidden="true" />
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wide">
-                Atmospheric Inversion Mechanism
+                Why is smog trapped today?
               </h3>
             </div>
             <button
               type="button"
               onClick={() => setShowInversionExplainer(!showInversionExplainer)}
-              className="text-[11px] font-semibold text-blue-700 hover:text-blue-800 flex items-center gap-1"
+              className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
               aria-expanded={showInversionExplainer}
             >
               <Info className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>{showInversionExplainer ? "Hide Explainer" : "Why it traps"}</span>
+              <span>{showInversionExplainer ? "Hide Science" : "How Inversion Works"}</span>
               {showInversionExplainer ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
             </button>
           </div>
@@ -274,61 +260,62 @@ export const SmogDashboard: React.FC<SmogDashboardProps> = ({ data }) => {
             {airQuality.explanation}
           </p>
 
-          {/* Interactive Inversion Diagram / Explainer */}
           {showInversionExplainer && (
-            <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/80 p-3 text-xs text-indigo-950 animate-fade-in-up">
+            <div className="mt-3 rounded-xl border border-indigo-200 bg-indigo-50/90 p-3 text-xs text-indigo-950 animate-fade-in-up">
               <p className="font-bold mb-1.5 flex items-center gap-1">
                 🔬 The Winter Thermal Trap Explained:
               </p>
               <div className="space-y-1.5 text-[11px] leading-relaxed">
                 <p>
-                  <strong>1. Warm Air Lid:</strong> A layer of warm air forms high above the cold ground, reversing the normal atmosphere.
+                  <strong>1. The Warm Air Lid:</strong> Normally, ground air cools as it rises. In winter, an overhead layer of warm air forms a &quot;thermal ceiling&quot;.
                 </p>
                 <p>
-                  <strong>2. Stagnant Air:</strong> Winds under 10 km/h fail to blow the stagnant air away.
+                  <strong>2. Stagnant Winds:</strong> Surface wind speeds below 10 km/h fail to push the cold pool away.
                 </p>
                 <p>
-                  <strong>3. Trapped Surface Smog:</strong> Vehicular smoke, crop residue, and residential heating have nowhere to rise, pooling at head-level where children and elders breathe.
+                  <strong>3. Ground-Level Pooling:</strong> Smoke from bonfires, vehicle exhaust, and cooking fumes cannot escape upward, collecting directly at lung-level where families walk and commute.
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Diurnal Cleanest vs Peak Smog Windows */}
+        {/* Diurnal Cleanest Window vs Peak Smog Window */}
         <div className="flex flex-col gap-2.5 justify-between">
-          {/* Cleanest Window */}
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 flex items-start justify-between gap-2 shadow-2xs">
-            <div className="flex items-start space-x-2.5">
-              <Clock className="h-4 w-4 text-emerald-700 mt-0.5 shrink-0" aria-hidden="true" />
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 flex items-start justify-between gap-2 shadow-2xs">
+            <div className="flex items-start space-x-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white shrink-0">
+                <Clock className="h-4 w-4" aria-hidden="true" />
+              </div>
               <div>
-                <p className="text-[11px] font-bold text-emerald-900 uppercase">
-                  Cleanest Outdoor Window
+                <p className="text-[11px] font-extrabold text-emerald-900 uppercase tracking-wider">
+                  Safest Outdoor Window (Air Out Home)
                 </p>
-                <p className="text-xs font-semibold text-emerald-950 mt-0.5">
+                <p className="text-xs sm:text-sm font-bold text-emerald-950 mt-0.5">
                   {airQuality.cleanestWindow}
                 </p>
               </div>
             </div>
-            <span className="shrink-0 rounded-md bg-emerald-700 px-2 py-0.5 text-[10px] font-bold text-white">
-              Safest Air
+            <span className="shrink-0 rounded-full bg-emerald-700 px-2.5 py-0.5 text-[10px] font-extrabold text-white">
+              Lowest PM2.5
             </span>
           </div>
 
-          {/* Peak Smog Window */}
-          <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-3.5 flex items-start justify-between gap-2 shadow-2xs">
-            <div className="flex items-start space-x-2.5">
-              <ShieldAlert className="h-4 w-4 text-rose-700 mt-0.5 shrink-0" aria-hidden="true" />
+          <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4 flex items-start justify-between gap-2 shadow-2xs">
+            <div className="flex items-start space-x-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-600 text-white shrink-0">
+                <ShieldAlert className="h-4 w-4" aria-hidden="true" />
+              </div>
               <div>
-                <p className="text-[11px] font-bold text-rose-900 uppercase">
-                  Peak Smog Trapping Window
+                <p className="text-[11px] font-extrabold text-rose-900 uppercase tracking-wider">
+                  Peak Smog Trapping Window (Stay Indoors)
                 </p>
-                <p className="text-xs font-semibold text-rose-950 mt-0.5">
+                <p className="text-xs sm:text-sm font-bold text-rose-950 mt-0.5">
                   {airQuality.peakSmogWindow}
                 </p>
               </div>
             </div>
-            <span className="shrink-0 rounded-md bg-rose-700 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="shrink-0 rounded-full bg-rose-700 px-2.5 py-0.5 text-[10px] font-extrabold text-white">
               Highest Risk
             </span>
           </div>
